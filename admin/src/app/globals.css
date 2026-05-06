@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #000666;
+  --primary-container: #1a237e;
+  --on-primary: #ffffff;
+  --on-primary-container: #8690ee;
+  --secondary: #006b5f;
+  --background: #f8f9fa;
+  --surface: #f8f9fa;
+  --surface-container-lowest: #ffffff;
+  --outline: #767683;
+  --outline-variant: #c6c5d4;
+  --on-surface: #191c1d;
+  --on-surface-variant: #454652;
+  --error: #ba1a1a;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--on-surface);
+}

@@ -109,11 +109,11 @@ export default function RegisterScreen({ navigation }) {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const uid = userCredential.user.uid;
       await set(ref(database, `users/${uid}`), {
-        fullName,
-        matricNumber: matricNumber.toUpperCase(),
-        email,
-        department,
-        level,
+        fullName: fullName.trim(),
+        matricNumber: matricNumber.toUpperCase().trim(),
+        email: email.trim(),
+        department: department.trim(),
+        level: level.trim(),
         role: 'student',
         createdAt: new Date().toISOString(),
       });

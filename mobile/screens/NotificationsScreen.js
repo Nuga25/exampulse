@@ -15,7 +15,7 @@ const formatTime = (timestamp) => {
   });
 };
 
-export default function NotificationsScreen() {
+export default function NotificationsScreen({ navigation }) {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -46,23 +46,34 @@ export default function NotificationsScreen() {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
-      style={[s.card, !item.read && s.cardUnread]}
-      onPress={() => markAsRead(item.id)}
-      activeOpacity={0.85}
+        style={[s.card, !item.read && s.cardUnread]}
+        onPress={() => {
+        markAsRead(item.id);
+        // Navigate to exam detail if exam data exists
+        if (item.examData?.courseCode) {
+            navigation.navigate('ExamDetail', { exam: item.examData });
+        }
+        }}
+        activeOpacity={0.85}
     >
-      <View style={s.cardLeft}>
-        <Text style={s.cardIcon}>{item.title?.includes('New') ? '📅' : item.title?.includes('Updated') ? '✏️' : '🗑️'}</Text>
-      </View>
-      <View style={s.cardBody}>
+        <View style={s.cardLeft}>
+        <Text style={s.cardIcon}>
+            {item.title?.includes('New') ? '📅' : item.title?.includes('Updated') ? '✏️' : '🗑️'}
+        </Text>
+        </View>
+        <View style={s.cardBody}>
         <View style={s.cardTitleRow}>
-          <Text style={s.cardTitle}>{item.title}</Text>
-          {!item.read && <View style={s.unreadDot} />}
+            <Text style={s.cardTitle}>{item.title}</Text>
+            {!item.read && <View style={s.unreadDot} />}
         </View>
         <Text style={s.cardBody2} numberOfLines={2}>{item.body}</Text>
         <Text style={s.cardTime}>{formatTime(item.timestamp)}</Text>
-      </View>
+        </View>
+        {item.examData?.courseCode && (
+        <Text style={s.chevron}>›</Text>
+        )}
     </TouchableOpacity>
-  );
+    );
 
   return (
     <SafeAreaView style={s.safe}>
@@ -175,4 +186,10 @@ const s = StyleSheet.create({
     backgroundColor: '#000666',
     marginLeft: 8,
   },
+  chevron: {
+  fontSize: 22,
+  color: '#ccc',
+  fontWeight: '300',
+  alignSelf: 'center',
+ },
 });

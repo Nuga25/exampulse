@@ -43,7 +43,7 @@ const getDaysUntil = (dateStr) => {
   return `In ${diff} days`;
 };
 
-export default function TimetableScreen() {
+export default function TimetableScreen({ navigation }) {
   const { user } = useAuth();
   const [exams, setExams] = useState([]);
   const [userData, setUserData] = useState(null);
@@ -146,7 +146,11 @@ export default function TimetableScreen() {
       >
         {/* Next Exam Hero Card */}
         {nextExam ? (
-          <View style={s.heroCard}>
+          <TouchableOpacity
+            style={s.heroCard}
+            onPress={() => navigation.navigate('ExamDetail', { exam: nextExam })}
+            activeOpacity={0.88}
+          >
             <View style={s.heroCardTop}>
               <View style={s.heroBadge}>
                 <Text style={s.heroBadgeText}>NEXT EXAM</Text>
@@ -171,7 +175,7 @@ export default function TimetableScreen() {
                 <Text style={s.heroMetaText}>{nextExam.venue}</Text>
               </View>
             </View>
-          </View>
+          </TouchableOpacity>
         ) : (
           <View style={s.noNextCard}>
             <Text style={s.noNextIcon}>✅</Text>
@@ -194,7 +198,11 @@ export default function TimetableScreen() {
                 <Text style={[s.tableHeaderText, { flex: 1, textAlign: 'right' }]}>STATUS</Text>
               </View>
               {remainingExams.map((exam, index) => (
-                <View key={exam.id}>
+                <TouchableOpacity
+                  key={exam.id}
+                  onPress={() => navigation.navigate('ExamDetail', { exam })}
+                  activeOpacity={0.85}
+                >
                   {index > 0 && <View style={s.tableRowDivider} />}
                   <View style={s.tableRow}>
                     <View style={{ flex: 2 }}>
@@ -211,7 +219,7 @@ export default function TimetableScreen() {
                       </View>
                     </View>
                   </View>
-                </View>
+                 </TouchableOpacity>
               ))}
             </View>
           </View>
@@ -226,7 +234,11 @@ export default function TimetableScreen() {
             </View>
             <View style={s.tableCard}>
               {pastExams.map((exam, index) => (
-                <View key={exam.id}>
+                <TouchableOpacity
+                  key={exam.id}
+                  onPress={() => navigation.navigate('ExamDetail', { exam })}
+                  activeOpacity={0.85}
+                >
                   {index > 0 && <View style={s.tableRowDivider} />}
                   <View style={[s.tableRow, { opacity: 0.5 }]}>
                     <View style={{ flex: 2 }}>
@@ -243,7 +255,7 @@ export default function TimetableScreen() {
                       </View>
                     </View>
                   </View>
-                </View>
+                </TouchableOpacity>
               ))}
             </View>
           </View>

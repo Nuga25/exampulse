@@ -3,7 +3,6 @@ const cors = require('cors');
 const admin = require('firebase-admin');
 require('dotenv').config();
 
-// Initialise Firebase Admin
 const serviceAccount = require('./serviceAccountKey.json');
 
 admin.initializeApp({
@@ -12,35 +11,160 @@ admin.initializeApp({
 });
 
 const app = express();
-
-// Middleware
 app.use(cors());
 app.use(express.json());
+
+const db = admin.database();
 
 // Test route
 app.get('/', (req, res) => {
   res.json({ message: 'ExamPulse backend is running' });
 });
 
-// Test Firebase connection
-app.get('/test-firebase', async (req, res) => {
+// ─── NOTIFICATION SENDER ───────────────────────────────────────────
+const sendNotificationToStudents = async (department, level, title, body, examData) => {
   try {
-    const db = admin.database();
-    await db.ref('connection_test').set({
-      status: 'connected',
-      timestamp: new Date().toISOString()
+    // Get all users
+    const usersSnapshot = await db.ref('users').get();
+    if (!usersSnapshot.exists()) return;
+
+    const tokens = [];
+    const studentIds = [];
+
+    usersSnapshot.forEach((child) => {
+      const user = child.val();
+      if (
+        user.role === 'student' &&
+        user.fcmToken &&
+        user.department?.trim().toLowerCase() === department?.trim().toLowerCase() &&
+        String(user.level).trim() === String(level).trim()
+      ) {
+        tokens.push(user.fcmToken);
+        studentIds.push(child.key);
+      }
     });
-    res.json({ message: 'Firebase connection successful' });
+
+    if (tokens.length === 0) {
+      console.log('No students found for department:', department, 'level:', level);
+      return;
+    }
+
+    console.log(`Sending notifications to ${tokens.length} student(s)...`);
+
+    // Send via Expo Push API (works with Expo tokens)
+    const messages = tokens.map(token => ({
+      to: token,
+      title,
+      body,
+      data: examData,
+      sound: 'default',
+      priority: 'high',
+    }));
+
+    const response = await fetch('https://exp.host/--/api/v2/push/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Accept-Encoding': 'gzip, deflate',
+      },
+      body: JSON.stringify(messages),
+    });
+
+    const result = await response.json();
+    console.log('Notification result:', JSON.stringify(result));
+
+    // Log notification to database for each student
+    const timestamp = new Date().toISOString();
+    for (const studentId of studentIds) {
+      const notifRef = db.ref(`notifications/${studentId}`).push();
+      await notifRef.set({
+        title,
+        body,
+        examData,
+        timestamp,
+        read: false,
+      });
+    }
+
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error sending notifications:', error);
   }
+};
+
+// ─── LISTEN FOR EXAM CHANGES ───────────────────────────────────────
+// Track existing exams so we know what is new vs updated
+let knownExams = {};
+let listenerReady = false;
+
+db.ref('exams').on('child_added', async (snapshot) => {
+  const exam = snapshot.val();
+  const examId = snapshot.key;
+
+  // Skip exams that already existed when the server started
+  if (!listenerReady) {
+    knownExams[examId] = exam;
+    return;
+  }
+
+  console.log('New exam detected:', exam.courseCode);
+
+  await sendNotificationToStudents(
+    exam.department,
+    exam.level,
+    '📅 New Exam Scheduled',
+    `${exam.courseCode} — ${exam.courseTitle} on ${exam.date} at ${exam.startTime}, ${exam.venue}`,
+    { examId, ...exam }
+  );
+
+  knownExams[examId] = exam;
 });
 
-// Routes (we will uncomment these soon)
-// app.use('/api/exams', require('./routes/exams'));
-// app.use('/api/notifications', require('./routes/notifications'));
+db.ref('exams').on('child_changed', async (snapshot) => {
+  if (!listenerReady) return;
 
-const PORT = process.env.PORT || 5000;
+  const exam = snapshot.val();
+  const examId = snapshot.key;
+
+  console.log('Exam updated:', exam.courseCode);
+
+  await sendNotificationToStudents(
+    exam.department,
+    exam.level,
+    '✏️ Exam Updated',
+    `${exam.courseCode} — ${exam.courseTitle} has been updated. Check your timetable.`,
+    { examId, ...exam }
+  );
+
+  knownExams[examId] = exam;
+});
+
+db.ref('exams').on('child_removed', async (snapshot) => {
+  if (!listenerReady) return;
+
+  const exam = snapshot.val();
+  console.log('Exam removed:', exam.courseCode);
+
+  await sendNotificationToStudents(
+    exam.department,
+    exam.level,
+    '🗑️ Exam Cancelled',
+    `${exam.courseCode} — ${exam.courseTitle} has been cancelled.`,
+    { examId: snapshot.key, ...exam }
+  );
+});
+
+// Mark listener as ready after initial load
+db.ref('exams').once('value', () => {
+  listenerReady = true;
+  console.log('Exam listener ready — watching for changes...');
+});
+
+// ─── ROUTES ───────────────────────────────────────────────────────
+app.use('/api/exams', require('./routes/exams'));
+app.use('/api/notifications', require('./routes/notifications'));
+
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`ExamPulse backend running on port ${PORT}`);
 });

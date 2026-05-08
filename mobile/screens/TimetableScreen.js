@@ -8,6 +8,7 @@ import { ref, onValue } from 'firebase/database';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { auth, database } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
+import { registerForPushNotifications } from '../utils/notifications';
 
 const CACHE_KEY = 'exampulse_timetable_cache';
 
@@ -58,6 +59,8 @@ export default function TimetableScreen() {
         const data = snapshot.val();
         setUserData(data);
         loadExams(data.department, data.level);
+        // Register for push notifications and save token
+        registerForPushNotifications(user.uid);
       }
     });
     return () => unsubscribe();

@@ -80,13 +80,20 @@ export default function ExamsPage() {
                   </td>
                   <td className="px-md py-sm">
                     <div className="flex items-center gap-xs">
-                      <button
+                        <Link
+                        href={`/dashboard/exams/${exam.id}/edit`}
+                        className="p-1 text-primary hover:bg-primary-fixed rounded transition-colors"
+                        title="Edit"
+                        >
+                        <span className="material-symbols-outlined text-base">edit</span>
+                        </Link>
+                        <button
                         onClick={() => handleDelete(exam.id, exam.courseCode)}
                         className="p-1 text-error hover:bg-error-container rounded transition-colors"
                         title="Delete"
-                      >
+                        >
                         <span className="material-symbols-outlined text-base">delete</span>
-                      </button>
+                        </button>
                     </div>
                   </td>
                 </tr>

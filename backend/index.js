@@ -23,9 +23,8 @@ app.get('/', (req, res) => {
 });
 
 // ─── NOTIFICATION SENDER ───────────────────────────────────────────
-const sendNotificationToStudents = async (department, level, title, body, examData) => {
+const sendNotificationToStudents = async (courseCode, title, body, examData) => {
   try {
-    // Get all users
     const usersSnapshot = await db.ref('users').get();
     if (!usersSnapshot.exists()) return;
 
@@ -34,25 +33,36 @@ const sendNotificationToStudents = async (department, level, title, body, examDa
 
     usersSnapshot.forEach((child) => {
       const user = child.val();
-      if (
-        user.role === 'student' &&
-        user.fcmToken &&
-        user.department?.trim().toLowerCase() === department?.trim().toLowerCase() &&
-        String(user.level).trim() === String(level).trim()
-      ) {
+      if (user.role !== 'student' || !user.fcmToken) return;
+
+      // Check if student has this course in their registered courses
+      const registeredCodes = (user.courses || []).map(c =>
+        c.courseCode.replace(/\s/g, '').toUpperCase()
+      );
+
+      const examCode = courseCode?.replace(/\s/g, '').toUpperCase();
+
+      // Also keep department/level fallback for students without courses registered
+      const hasCourse = registeredCodes.length > 0
+        ? registeredCodes.includes(examCode)
+        : (
+          user.department?.trim().toLowerCase() === examData.department?.trim().toLowerCase() &&
+          String(user.level).trim() === String(examData.level).trim()
+        );
+
+      if (hasCourse) {
         tokens.push(user.fcmToken);
         studentIds.push(child.key);
       }
     });
 
     if (tokens.length === 0) {
-      console.log('No students found for department:', department, 'level:', level);
+      console.log('No students found for course:', courseCode);
       return;
     }
 
-    console.log(`Sending notifications to ${tokens.length} student(s)...`);
+    console.log(`Sending notifications to ${tokens.length} student(s) for ${courseCode}...`);
 
-    // Send via Expo Push API (works with Expo tokens)
     const messages = tokens.map(token => ({
       to: token,
       title,
@@ -75,7 +85,7 @@ const sendNotificationToStudents = async (department, level, title, body, examDa
     const result = await response.json();
     console.log('Notification result:', JSON.stringify(result));
 
-    // Log notification to database for each student
+    // Log to database
     const timestamp = new Date().toISOString();
     for (const studentId of studentIds) {
       const notifRef = db.ref(`notifications/${studentId}`).push();
@@ -102,7 +112,6 @@ db.ref('exams').on('child_added', async (snapshot) => {
   const exam = snapshot.val();
   const examId = snapshot.key;
 
-  // Skip exams that already existed when the server started
   if (!listenerReady) {
     knownExams[examId] = exam;
     return;
@@ -111,8 +120,7 @@ db.ref('exams').on('child_added', async (snapshot) => {
   console.log('New exam detected:', exam.courseCode);
 
   await sendNotificationToStudents(
-    exam.department,
-    exam.level,
+    exam.courseCode,
     '📅 New Exam Scheduled',
     `${exam.courseCode} — ${exam.courseTitle} on ${exam.date} at ${exam.startTime}, ${exam.venue}`,
     { examId, ...exam }
@@ -130,8 +138,7 @@ db.ref('exams').on('child_changed', async (snapshot) => {
   console.log('Exam updated:', exam.courseCode);
 
   await sendNotificationToStudents(
-    exam.department,
-    exam.level,
+    exam.courseCode,
     '✏️ Exam Updated',
     `${exam.courseCode} — ${exam.courseTitle} has been updated. Check your timetable.`,
     { examId, ...exam }
@@ -144,11 +151,11 @@ db.ref('exams').on('child_removed', async (snapshot) => {
   if (!listenerReady) return;
 
   const exam = snapshot.val();
+
   console.log('Exam removed:', exam.courseCode);
 
   await sendNotificationToStudents(
-    exam.department,
-    exam.level,
+    exam.courseCode,
     '🗑️ Exam Cancelled',
     `${exam.courseCode} — ${exam.courseTitle} has been cancelled.`,
     { examId: snapshot.key, ...exam }

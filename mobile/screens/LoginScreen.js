@@ -5,7 +5,7 @@ import {
   ScrollView, KeyboardAvoidingView, Platform, Dimensions, Image
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { ref, get } from 'firebase/database';
 import { auth, database } from '../config/firebase';
 
@@ -18,6 +18,55 @@ export default function LoginScreen({ navigation }) {
   const [matricFocused, setMatricFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+
+  const handleForgotPassword = async () => {
+    if (!matricNumber) {
+      Alert.alert(
+        'Enter Matric Number',
+        'Please enter your matric number first so we can find your account.',
+      );
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Find email linked to this matric number
+      const usersRef = ref(database, 'users');
+      const snapshot = await get(usersRef);
+
+      if (!snapshot.exists()) {
+        Alert.alert('Not found', 'No accounts found.');
+        setLoading(false);
+        return;
+      }
+
+      let userEmail = null;
+      snapshot.forEach((child) => {
+        const data = child.val();
+        if (data.matricNumber === matricNumber.toUpperCase().trim()) {
+          userEmail = data.email;
+        }
+      });
+
+      if (!userEmail) {
+        Alert.alert('Not found', 'No account found for this matric number.');
+        setLoading(false);
+        return;
+      }
+
+      // Send reset email via Firebase
+      await sendPasswordResetEmail(auth, userEmail);
+      Alert.alert(
+        'Reset Email Sent ✅',
+        `A password reset link has been sent to your registered email address. Check your inbox or spam folder if you don't see it.`,
+      );
+    } catch (error) {
+      Alert.alert('Error', 'Failed to send reset email. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogin = async () => {
     if (!matricNumber || !password) {
@@ -110,7 +159,7 @@ export default function LoginScreen({ navigation }) {
             <View style={s.fieldWrap}>
               <View style={s.fieldLabelRow}>
                 <Text style={s.fieldLabel}>Password</Text>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={handleForgotPassword}>
                   <Text style={s.forgotLink}>Forgot password?</Text>
                 </TouchableOpacity>
               </View>

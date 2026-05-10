@@ -4,7 +4,7 @@ import {
   TouchableOpacity, ActivityIndicator
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ref, onValue, update } from 'firebase/database';
+import { ref, onValue, update, remove } from 'firebase/database';
 import { database } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
 
@@ -75,6 +75,23 @@ export default function NotificationsScreen({ navigation }) {
     </TouchableOpacity>
     );
 
+    const handleClearAll = () => {
+      Alert.alert(
+        'Clear All Notifications',
+        'This will permanently delete all your notifications. Are you sure?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Clear All',
+            style: 'destructive',
+            onPress: async () => {
+              await remove(ref(database, `notifications/${user.uid}`));
+            }
+          }
+        ]
+      );
+    };
+
   return (
     <SafeAreaView style={s.safe}>
       {/* Header */}
@@ -85,11 +102,18 @@ export default function NotificationsScreen({ navigation }) {
             {unreadCount > 0 ? `${unreadCount} unread alert${unreadCount > 1 ? 's' : ''}` : 'All caught up'}
           </Text>
         </View>
-        {unreadCount > 0 && (
-          <View style={s.headerBadge}>
-            <Text style={s.headerBadgeText}>{unreadCount}</Text>
-          </View>
-        )}
+        <View style={s.headerRight}>
+          {unreadCount > 0 && (
+            <View style={s.headerBadge}>
+              <Text style={s.headerBadgeText}>{unreadCount}</Text>
+            </View>
+          )}
+          {notifications.length > 0 && (
+            <TouchableOpacity onPress={handleClearAll} style={s.clearBtn}>
+              <Text style={s.clearBtnText}>Clear All</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       {loading ? (
@@ -192,4 +216,22 @@ const s = StyleSheet.create({
   fontWeight: '300',
   alignSelf: 'center',
  },
+ headerRight: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 8,
+},
+clearBtn: {
+  paddingHorizontal: 12,
+  paddingVertical: 6,
+  borderRadius: 8,
+  backgroundColor: 'rgba(255,255,255,0.15)',
+  borderWidth: 1,
+  borderColor: 'rgba(255,255,255,0.2)',
+},
+clearBtnText: {
+  color: '#fff',
+  fontSize: 12,
+  fontWeight: '600',
+},
 });

@@ -12,7 +12,8 @@ admin.initializeApp({
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 const db = admin.database();
 
@@ -163,6 +164,7 @@ db.ref('exams').once('value', () => {
 // ─── ROUTES ───────────────────────────────────────────────────────
 app.use('/api/exams', require('./routes/exams'));
 app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/parse', require('./routes/parse'));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

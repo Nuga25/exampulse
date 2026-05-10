@@ -58,26 +58,46 @@ export default function TimetableScreen({ navigation }) {
       if (snapshot.exists()) {
         const data = snapshot.val();
         setUserData(data);
-        loadExams(data.department, data.level);
-        // Register for push notifications and save token
+        loadExams(data.department, data.level, data.courses || []);
         registerForPushNotifications(user.uid);
       }
     });
     return () => unsubscribe();
   }, [user]);
 
-  const loadExams = (department, level) => {
+  const loadExams = (department, level, courses) => {
     const examsRef = ref(database, 'exams');
     onValue(examsRef, async (snapshot) => {
       if (snapshot.exists()) {
         const all = snapshot.val();
-        const filtered = Object.entries(all)
-          .map(([id, val]) => ({ id, ...val }))
-          .filter(exam =>
-            exam.department?.trim().toLowerCase() === department?.trim().toLowerCase() &&
-            String(exam.level).trim() === String(level).trim()
-          )
-          .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        // Build list of registered course codes — strip spaces and uppercase
+        const registeredCodes = courses && courses.length > 0
+          ? courses.map(c => c.courseCode.replace(/\s/g, '').toUpperCase())
+          : [];
+
+        let filtered;
+
+        if (registeredCodes.length > 0) {
+          // Filter by registered course codes
+          filtered = Object.entries(all)
+            .map(([id, val]) => ({ id, ...val }))
+            .filter(exam => {
+              const examCode = exam.courseCode?.replace(/\s/g, '').toUpperCase();
+              return registeredCodes.includes(examCode);
+            })
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
+        } else {
+          // Fallback — filter by department and level if no courses registered
+          filtered = Object.entries(all)
+            .map(([id, val]) => ({ id, ...val }))
+            .filter(exam =>
+              exam.department?.trim().toLowerCase() === department?.trim().toLowerCase() &&
+              String(exam.level).trim() === String(level).trim()
+            )
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
+        }
+
         setExams(filtered);
         setIsOffline(false);
         await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(filtered));
@@ -98,7 +118,7 @@ export default function TimetableScreen({ navigation }) {
 
   const handleRefresh = () => {
     setRefreshing(true);
-    if (userData) loadExams(userData.department, userData.level);
+    if (userData) loadExams(userData.department, userData.level, userData.courses || []);
   };
 
   const upcomingExams = exams.filter(e => isUpcoming(e.date));

@@ -29,7 +29,7 @@ export default function NewExamPage() {
     e.preventDefault();
     setError('');
 
-    if (!form.courseCode || !form.courseTitle || !form.date || !form.startTime || !form.venue || !form.department || !form.level) {
+    if (!form.courseCode || !form.courseTitle || !form.date || !form.startTime || !form.venue) {
       setError('Please fill in all required fields.');
       return;
     }
@@ -194,13 +194,16 @@ export default function NewExamPage() {
 
           {/* Target Audience */}
           <div className="bg-white border border-outline-variant p-md rounded-lg shadow-sm">
-            <div className="flex items-center gap-xs mb-md border-b border-surface-container pb-sm">
-              <span className="material-symbols-outlined text-primary">groups</span>
-              <h2 className="text-headline-md font-semibold text-primary">Target Audience</h2>
+            <div className="flex flex-col gap-xs mb-md border-b border-surface-container pb-sm">
+              <div className='flex items-center gap-2'>
+                <span className="material-symbols-outlined text-primary">groups</span>
+                <h2 className="text-headline-md font-semibold text-primary">Target Audience</h2>
+              </div>
+              <span className="text-xs text-on-surface-variant">Optional — for display only</span>
             </div>
             <div className="space-y-md">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-xs">Department *</label>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-xs">Department</label>
                 <input
                   name="department"
                   value={form.department}
@@ -210,7 +213,7 @@ export default function NewExamPage() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-xs">Level *</label>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-xs">Level</label>
                 <select
                   name="level"
                   value={form.level}

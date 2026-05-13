@@ -63,7 +63,7 @@ export default function EditExamPage() {
     e.preventDefault();
     setError('');
 
-    if (!form.courseCode || !form.courseTitle || !form.date || !form.startTime || !form.venue || !form.department || !form.level) {
+    if (!form.courseCode || !form.courseTitle || !form.date || !form.startTime || !form.venue) {
       setError('Please fill in all required fields.');
       return;
     }
@@ -250,11 +250,12 @@ export default function EditExamPage() {
             <div className="flex items-center gap-xs mb-md border-b border-surface-container pb-sm">
               <span className="material-symbols-outlined text-primary">groups</span>
               <h2 className="text-headline-md font-semibold text-primary">Target Audience</h2>
+              <span className="text-xs text-on-surface-variant ml-auto">Optional — for display only</span>
             </div>
             <div className="space-y-md">
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-xs">
-                  Department *
+                  Department
                 </label>
                 <input
                   name="department"
@@ -266,7 +267,7 @@ export default function EditExamPage() {
               </div>
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-xs">
-                  Level *
+                  Level
                 </label>
                 <select
                   name="level"

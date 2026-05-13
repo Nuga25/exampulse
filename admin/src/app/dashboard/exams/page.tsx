@@ -31,10 +31,18 @@ export default function ExamsPage() {
   return (
     <div className="max-w-6xl mx-auto p-margin">
       <div className="flex justify-between items-end mb-lg">
-        <div>
-          <h2 className="text-headline-lg font-bold text-primary">Exam Schedule</h2>
-          <p className="text-on-surface-variant">{exams.length} examination{exams.length !== 1 ? 's' : ''} scheduled</p>
-        </div>
+      <div>
+        <h2 className="text-headline-lg font-bold text-primary">Exam Schedule</h2>
+        <p className="text-on-surface-variant">{exams.length} examination{exams.length !== 1 ? 's' : ''} scheduled</p>
+      </div>
+      <div className="flex gap-sm">
+        <Link
+          href="/dashboard/exams/import"
+          className="border border-primary text-primary px-md py-sm rounded-xl flex items-center gap-xs font-bold hover:bg-primary-fixed transition-colors text-sm"
+        >
+          <span className="material-symbols-outlined text-sm">auto_awesome</span>
+          Import from PDF
+        </Link>
         <Link
           href="/dashboard/exams/new"
           className="bg-primary text-on-primary px-md py-sm rounded-xl flex items-center gap-xs font-bold shadow-lg active:scale-[0.98] transition-transform text-sm"
@@ -43,6 +51,7 @@ export default function ExamsPage() {
           Add New Exam
         </Link>
       </div>
+    </div>
 
       {loading ? (
         <div className="text-center py-lg text-on-surface-variant">Loading...</div>

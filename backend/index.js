@@ -17,6 +17,55 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 const db = admin.database();
 
+const cron = require('node-cron');
+
+// ─── REMINDER NOTIFICATIONS ───────────────────────────────────────
+const sendReminderNotifications = async (hoursBeforeExam, label) => {
+  try {
+    const now = new Date();
+    const targetTime = new Date(now.getTime() + hoursBeforeExam * 60 * 60 * 1000);
+
+    // Get all exams
+    const examsSnapshot = await db.ref('exams').get();
+    if (!examsSnapshot.exists()) return;
+
+    const exams = [];
+    examsSnapshot.forEach((child) => {
+      const exam = child.val();
+      const examDateTime = new Date(`${exam.date}T${exam.startTime}`);
+
+      // Check if this exam falls within a 15-minute window around our target time
+      const diff = Math.abs(examDateTime - targetTime);
+      if (diff <= 15 * 60 * 1000) {
+        exams.push({ id: child.key, ...exam });
+      }
+    });
+
+    if (exams.length === 0) return;
+
+    console.log(`Sending ${label} reminders for ${exams.length} exam(s)...`);
+
+    for (const exam of exams) {
+      await sendNotificationToStudents(
+        exam.courseCode,
+        `⏰ Exam Reminder — ${label}`,
+        `${exam.courseCode} — ${exam.courseTitle} starts in ${label} at ${exam.startTime}, ${exam.venue}`,
+        { examId: exam.id, ...exam }
+      );
+    }
+  } catch (error) {
+    console.error('Reminder error:', error);
+  }
+};
+
+// Run every 15 minutes and check for upcoming exams
+cron.schedule('*/15 * * * *', async () => {
+  await sendReminderNotifications(24, '24 hours');
+  await sendReminderNotifications(2, '2 hours');
+});
+
+console.log('Reminder scheduler running — checking every 15 minutes');
+
 // Test route
 app.get('/', (req, res) => {
   res.json({ message: 'ExamPulse backend is running' });
@@ -113,6 +162,12 @@ db.ref('exams').on('child_added', async (snapshot) => {
   const examId = snapshot.key;
 
   if (!listenerReady) {
+    knownExams[examId] = exam;
+    return;
+  }
+
+  // Skip exams added via bulk import — they send their own single notification
+  if (exam.bulkImport) {
     knownExams[examId] = exam;
     return;
   }

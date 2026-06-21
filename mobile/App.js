@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ActivityIndicator, View, Text } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Notifications from 'expo-notifications';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -22,53 +22,58 @@ const TabIcon = ({ icon, focused }) => (
   <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.4 }}>{icon}</Text>
 );
 
-const StudentTabs = () => (
-  <Tab.Navigator
-    screenOptions={{
-      headerShown: false,
-      tabBarStyle: {
-        backgroundColor: '#fff',
-        borderTopWidth: 1,
-        borderTopColor: '#f0f0f5',
-        height: 64,
-        paddingBottom: 10,
-        paddingTop: 8,
-      },
-      tabBarActiveTintColor: '#000666',
-      tabBarInactiveTintColor: '#aaa',
-      tabBarLabelStyle: {
-        fontSize: 11,
-        fontWeight: '600',
-        letterSpacing: 0.2,
-      },
-    }}
-  >
-    <Tab.Screen
-      name="Timetable"
-      component={TimetableScreen}
-      options={{
-        tabBarIcon: ({ focused }) => <TabIcon icon="📅" focused={focused} />,
-        tabBarLabel: 'Timetable',
+
+const StudentTabs = () => {
+  const insets = useSafeAreaInsets();
+
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarStyle: {
+          backgroundColor: '#fff',
+          borderTopWidth: 1,
+          borderTopColor: '#f0f0f5',
+          height: 64 + insets.bottom,
+          paddingBottom: 10 + insets.bottom,
+          paddingTop: 8,
+        },
+        tabBarActiveTintColor: '#000666',
+        tabBarInactiveTintColor: '#aaa',
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '600',
+          letterSpacing: 0.2,
+        },
       }}
-    />
-    <Tab.Screen
-      name="Notifications"
-      component={NotificationsScreen}
-      options={{
-        tabBarIcon: ({ focused }) => <TabIcon icon="🔔" focused={focused} />,
-        tabBarLabel: 'Alerts',
-      }}
-    />
-    <Tab.Screen
-      name="Profile"
-      component={ProfileScreen}
-      options={{
-        tabBarIcon: ({ focused }) => <TabIcon icon="👤" focused={focused} />,
-        tabBarLabel: 'Profile',
-      }}
-    />
-  </Tab.Navigator>
-);
+    >
+      <Tab.Screen
+        name="Timetable"
+        component={TimetableScreen}
+        options={{
+          tabBarIcon: ({ focused }) => <TabIcon icon="📅" focused={focused} />,
+          tabBarLabel: 'Timetable',
+        }}
+      />
+      <Tab.Screen
+        name="Notifications"
+        component={NotificationsScreen}
+        options={{
+          tabBarIcon: ({ focused }) => <TabIcon icon="🔔" focused={focused} />,
+          tabBarLabel: 'Alerts',
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          tabBarIcon: ({ focused }) => <TabIcon icon="👤" focused={focused} />,
+          tabBarLabel: 'Profile',
+        }}
+      />
+    </Tab.Navigator>
+  );
+};
 
 const AppNavigator = () => {
   const { user, loading } = useAuth();

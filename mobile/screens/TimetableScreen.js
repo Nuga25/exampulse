@@ -198,7 +198,6 @@ export default function TimetableScreen({ navigation }) {
           </TouchableOpacity>
         ) : (
           <View style={s.noNextCard}>
-            <Text style={s.noNextIcon}>✅</Text>
             <Text style={s.noNextTitle}>All clear</Text>
             <Text style={s.noNextSub}>No upcoming exams scheduled</Text>
           </View>

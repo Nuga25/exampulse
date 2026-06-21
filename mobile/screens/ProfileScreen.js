@@ -7,7 +7,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { signOut } from 'firebase/auth';
 import { auth, database } from '../config/firebase';
 import { useAuth } from '../context/AuthContext';
-import { ref, onValue } from 'firebase/database';
+import { ref, onValue, update } from 'firebase/database';
+import { pickAndParseCourseForm } from '../utils/parseDocument';
 
 export default function ProfileScreen() {
   const { user } = useAuth();
@@ -21,6 +22,33 @@ export default function ProfileScreen() {
     });
     return () => unsubscribe();
   }, [user]);
+
+  const [updatingCourses, setUpdatingCourses] = useState(false);
+
+  const handleUpdateCourses = async () => {
+    setUpdatingCourses(true);
+    try {
+      const data = await pickAndParseCourseForm();
+      if (!data) { setUpdatingCourses(false); return; }
+
+      await update(ref(database, `users/${user.uid}`), {
+        courses: (data.courses || []).map(c => ({
+          courseCode: c.courseCode.replace(/\s/g, '').toUpperCase(),
+          courseTitle: c.courseTitle,
+          units: c.units,
+          status: c.status,
+        })),
+        semester: data.semester || '',
+        session: data.session || '',
+      });
+
+      Alert.alert('✅ Courses Updated', `${data.courses?.length || 0} courses found and saved.`);
+    } catch (error) {
+      Alert.alert('Upload failed', 'Could not read your course form. Please try again.');
+    } finally {
+      setUpdatingCourses(false);
+    }
+  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -83,6 +111,17 @@ export default function ProfileScreen() {
             <Text style={s.cardTitle}>Registered Courses</Text>
             <Text style={s.coursesCount}>{courses.length} courses</Text>
           </View>
+
+          <TouchableOpacity
+            style={s.updateCoursesBtn}
+            onPress={handleUpdateCourses}
+            disabled={updatingCourses}
+            activeOpacity={0.85}
+          >
+            <Text style={s.updateCoursesBtnText}>
+              {updatingCourses ? 'Reading your form...' : '📎  Upload New Course Form'}
+            </Text>
+          </TouchableOpacity>
           <View style={s.cardDivider} />
           {courses.length === 0 ? (
             <Text style={s.noCourses}>No courses registered yet.</Text>
@@ -189,6 +228,20 @@ const s = StyleSheet.create({
     height: 54, backgroundColor: '#fff',
     borderRadius: 14, alignItems: 'center', justifyContent: 'center',
     borderWidth: 2, borderColor: '#ff3b30', marginBottom: 16,
+  },
+  updateCoursesBtn: {
+  backgroundColor: '#f0f0f5',
+  borderRadius: 12,
+  paddingVertical: 12,
+  alignItems: 'center',
+  marginBottom: 12,
+  borderWidth: 1,
+  borderColor: '#e0e0ff',
+  },
+  updateCoursesBtnText: {
+    color: '#000666',
+    fontSize: 13,
+    fontWeight: '700',
   },
   signOutText: { color: '#ff3b30', fontSize: 15, fontWeight: '700' },
   version: { textAlign: 'center', fontSize: 12, color: '#bbb' },

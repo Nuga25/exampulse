@@ -1,7 +1,7 @@
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 
-const BACKEND_URL = 'http://172.20.10.2:3000';
+const BACKEND_URL = 'https://exampulse-production-a544.up.railway.app';
 
 export const pickAndParseCourseForm = async () => {
   try {

@@ -57,7 +57,7 @@ export default function ImportTimetablePage() {
 
         setProgress('AI is reading your timetable...');
 
-        const response = await fetch('http://localhost:3000/api/parse/exam-timetable', {
+        const response = await fetch('https://exampulse-production-a544.up.railway.app/api/parse/exam-timetable', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pdfBase64: base64, mimeType: file.type }),
@@ -102,7 +102,7 @@ export default function ImportTimetablePage() {
     setError('');
 
     try {
-        const response = await fetch('http://localhost:3000/api/parse/save-bulk', {
+        const response = await fetch('https://exampulse-production-a544.up.railway.app/api/parse/save-bulk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

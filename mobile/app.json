@@ -17,13 +17,14 @@
       "bundleIdentifier": "com.ifeedev.exampulse"
     },
     "android": {
-      "package": "com.ifeedev.exampulse",
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "edgeToEdgeEnabled": true
+    "package": "com.ifeedev.exampulse",
+    "googleServicesFile": "./google-services.json",
+    "adaptiveIcon": {
+      "foregroundImage": "./assets/adaptive-icon.png",
+      "backgroundColor": "#ffffff"
     },
+    "edgeToEdgeEnabled": true
+  },
     "web": {
       "favicon": "./assets/favicon.png"
     },

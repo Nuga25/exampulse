@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "344609509118",
+    "firebase_url": "https://exampulse-285b3-default-rtdb.firebaseio.com",
+    "project_id": "exampulse-285b3",
+    "storage_bucket": "exampulse-285b3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:344609509118:android:c2eaa3ae95d1a9e0c9dfaf",
+        "android_client_info": {
+          "package_name": "com.ifeedev.exampulse"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCI7THzYQGPcMqrko_qO8fA2cYYyLWchRc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

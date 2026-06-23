@@ -28,6 +28,11 @@ export default function ExamsPage() {
     await remove(ref(database, `exams/${id}`));
   };
 
+  const handleDeleteAll = async () => {
+  if (!confirm('Delete ALL exam records? This cannot be undone and will notify affected students.')) return;
+  await remove(ref(database, 'exams'));
+};
+
   return (
     <div className="max-w-6xl mx-auto p-margin">
       <div className="flex justify-between items-end mb-lg">
@@ -36,6 +41,15 @@ export default function ExamsPage() {
         <p className="text-on-surface-variant">{exams.length} examination{exams.length !== 1 ? 's' : ''} scheduled</p>
       </div>
       <div className="flex gap-sm">
+        {exams.length > 0 && (
+          <button
+            onClick={handleDeleteAll}
+            className="border border-error text-error px-md py-sm rounded-xl flex items-center gap-xs font-bold hover:bg-error-container transition-colors text-sm"
+          >
+            <span className="material-symbols-outlined text-sm">delete_sweep</span>
+            Delete All
+          </button>
+        )}
         <Link
           href="/dashboard/exams/import"
           className="border border-primary text-primary px-md py-sm rounded-xl flex items-center gap-xs font-bold hover:bg-primary-fixed transition-colors text-sm"

@@ -63,7 +63,7 @@ router.post('/exam-timetable', async (req, res) => {
       For each course found, return a JSON object with these exact fields:
       - courseCode: the course code without spaces e.g. CSC429
       - courseTitle: empty string
-      - date: the date in YYYY-MM-DD format
+      - date: the date in YYYY-MM-DD format, the year should always be the current year(for example, if the form says 2025/2026 academic session, the year used should be 2026)
       - startTime: in HH:MM 24hr format. Time columns are: first column=08:00, second column=11:30, third column=15:00
       - endTime: first column=11:00, second column=14:30, third column=18:00
       - venue: the venue text in brackets after the course code

@@ -7,8 +7,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const formatDate = (dateStr) => {
   if (!dateStr) return '';
-  return new Date(dateStr).toLocaleDateString('en-GB', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+  const [year, month, day] = dateStr.split('T')[0].split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  return date.toLocaleDateString('en-GB', {
+    weekday: 'short', day: 'numeric', month: 'short'
   });
 };
 

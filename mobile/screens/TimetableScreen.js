@@ -14,8 +14,11 @@ const CACHE_KEY = 'exampulse_timetable_cache';
 
 const formatDate = (dateStr) => {
   if (!dateStr) return '';
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+  const [year, month, day] = dateStr.split('T')[0].split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  return date.toLocaleDateString('en-GB', {
+    weekday: 'short', day: 'numeric', month: 'short'
+  });
 };
 
 const formatTime = (timeStr) => {
@@ -28,18 +31,25 @@ const formatTime = (timeStr) => {
 };
 
 const isUpcoming = (dateStr) => {
+  if (!dateStr) return false;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  return new Date(dateStr) >= today;
+  // Parse date parts manually to avoid UTC offset issues
+  const [year, month, day] = dateStr.split('T')[0].split('-').map(Number);
+  const examDate = new Date(year, month - 1, day);
+  return examDate >= today;
 };
 
 const getDaysUntil = (dateStr) => {
+  if (!dateStr) return '';
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const exam = new Date(dateStr);
+  const [year, month, day] = dateStr.split('T')[0].split('-').map(Number);
+  const exam = new Date(year, month - 1, day);
   const diff = Math.ceil((exam - today) / (1000 * 60 * 60 * 24));
   if (diff === 0) return 'Today';
   if (diff === 1) return 'Tomorrow';
+  if (diff < 0) return 'Past';
   return `In ${diff} days`;
 };
 

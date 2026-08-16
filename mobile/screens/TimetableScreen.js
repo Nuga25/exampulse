@@ -3,6 +3,7 @@ import {
   View, Text, ScrollView, StyleSheet, StatusBar,
   ActivityIndicator, RefreshControl, TouchableOpacity, Image
 } from 'react-native';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ref, onValue } from 'firebase/database';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -165,7 +166,10 @@ export default function TimetableScreen({ navigation }) {
 
       {isOffline && (
         <View style={s.offlineBanner}>
-          <Text style={s.offlineText}>📶  Offline — showing cached timetable</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            <MaterialCommunityIcons name="wifi-off" size={14} color="#856404" />
+            <Text style={s.offlineText}>Offline — showing cached timetable</Text>
+          </View>
         </View>
       )}
 
@@ -190,21 +194,21 @@ export default function TimetableScreen({ navigation }) {
             <Text style={s.heroCourseCode}>{nextExam.courseCode}</Text>
             <Text style={s.heroCourseTitle}>{nextExam.courseTitle}</Text>
             <View style={s.heroMeta}>
-              <View style={s.heroMetaItem}>
-                <Text style={s.heroMetaIcon}>🕐</Text>
-                <Text style={s.heroMetaText}>{formatTime(nextExam.startTime)}</Text>
-              </View>
-              <View style={s.heroMetaDot} />
-              <View style={s.heroMetaItem}>
-                <Text style={s.heroMetaIcon}>📅</Text>
-                <Text style={s.heroMetaText}>{formatDate(nextExam.date)}</Text>
-              </View>
-              <View style={s.heroMetaDot} />
-              <View style={s.heroMetaItem}>
-                <Text style={s.heroMetaIcon}>📍</Text>
-                <Text style={s.heroMetaText}>{nextExam.venue}</Text>
-              </View>
+            <View style={s.heroMetaItem}>
+              <Ionicons name="time-outline" size={13} color="rgba(255,255,255,0.75)" />
+              <Text style={s.heroMetaText}>{formatTime(nextExam.startTime)}</Text>
             </View>
+            <View style={s.heroMetaDot} />
+            <View style={s.heroMetaItem}>
+              <Ionicons name="calendar-outline" size={13} color="rgba(255,255,255,0.75)" />
+              <Text style={s.heroMetaText}>{formatDate(nextExam.date)}</Text>
+            </View>
+            <View style={s.heroMetaDot} />
+            <View style={s.heroMetaItem}>
+              <Ionicons name="location-outline" size={13} color="rgba(255,255,255,0.75)" />
+              <Text style={s.heroMetaText}>{nextExam.venue}</Text>
+            </View>
+          </View>
           </TouchableOpacity>
         ) : (
           <View style={s.noNextCard}>
@@ -292,7 +296,7 @@ export default function TimetableScreen({ navigation }) {
 
         {exams.length === 0 && (
           <View style={s.emptyState}>
-            <Text style={s.emptyIcon}>📭</Text>
+            <Ionicons name="mail-open-outline" size={44} color="#ccc" style={{ marginBottom: 16 }} />
             <Text style={s.emptyTitle}>No exams scheduled yet</Text>
             <Text style={s.emptySub}>Your timetable will appear here once your department's exams are published.</Text>
           </View>
@@ -356,7 +360,6 @@ const s = StyleSheet.create({
   heroCourseTitle: { fontSize: 22, fontWeight: '800', color: '#fff', letterSpacing: -0.3, marginBottom: 20 },
   heroMeta: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8 },
   heroMetaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  heroMetaIcon: { fontSize: 12 },
   heroMetaText: { fontSize: 12, color: 'rgba(255,255,255,0.75)', fontWeight: '500' },
   heroMetaDot: { width: 3, height: 3, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.3)' },
 

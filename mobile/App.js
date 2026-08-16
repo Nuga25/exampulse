@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ActivityIndicator, View, Text } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Notifications from 'expo-notifications';
 
@@ -18,8 +19,12 @@ import ExamDetailScreen from './screens/ExamDetailScreen';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-const TabIcon = ({ icon, focused }) => (
-  <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.4 }}>{icon}</Text>
+const TabIcon = ({ name, focused }) => (
+  <Ionicons
+    name={name}
+    size={22}
+    color={focused ? '#000666' : '#aaa'}
+  />
 );
 
 
@@ -51,7 +56,9 @@ const StudentTabs = () => {
         name="Timetable"
         component={TimetableScreen}
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon icon="📅" focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon name={focused ? 'calendar' : 'calendar-outline'} focused={focused} />
+          ),
           tabBarLabel: 'Timetable',
         }}
       />
@@ -59,7 +66,9 @@ const StudentTabs = () => {
         name="Notifications"
         component={NotificationsScreen}
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon icon="🔔" focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon name={focused ? 'notifications' : 'notifications-outline'} focused={focused} />
+          ),
           tabBarLabel: 'Alerts',
         }}
       />
@@ -67,7 +76,9 @@ const StudentTabs = () => {
         name="Profile"
         component={ProfileScreen}
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon icon="👤" focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon name={focused ? 'person' : 'person-outline'} focused={focused} />
+          ),
           tabBarLabel: 'Profile',
         }}
       />

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, FlatList,
-  TouchableOpacity, ActivityIndicator
+  TouchableOpacity, ActivityIndicator, Alert
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ref, onValue, update, remove } from 'firebase/database';
 import { database } from '../config/firebase';
@@ -57,9 +58,19 @@ export default function NotificationsScreen({ navigation }) {
         activeOpacity={0.85}
     >
         <View style={s.cardLeft}>
-        <Text style={s.cardIcon}>
-            {item.title?.includes('New') ? '📅' : item.title?.includes('Updated') ? '✏️' : '🗑️'}
-        </Text>
+        <View style={s.cardLeft}>
+          <Ionicons
+            name={
+              item.title?.includes('New')
+                ? 'calendar-outline'
+                : item.title?.includes('Updated')
+                ? 'create-outline'
+                : 'trash-outline'
+            }
+            size={20}
+            color="#000666"
+          />
+        </View>
         </View>
         <View style={s.cardBody}>
         <View style={s.cardTitleRow}>
@@ -122,7 +133,7 @@ export default function NotificationsScreen({ navigation }) {
         </View>
       ) : notifications.length === 0 ? (
         <View style={s.empty}>
-          <Text style={s.emptyIcon}>🔔</Text>
+          <Ionicons name="notifications-outline" size={48} color="#ccc" style={{ marginBottom: 16 }} />
           <Text style={s.emptyTitle}>No notifications yet</Text>
           <Text style={s.emptySub}>You will be notified here when exam schedules change.</Text>
         </View>
@@ -163,7 +174,6 @@ const s = StyleSheet.create({
   headerBadgeText: { color: '#fff', fontSize: 14, fontWeight: '800' },
   loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 40 },
-  emptyIcon: { fontSize: 48, marginBottom: 16 },
   emptyTitle: { fontSize: 18, fontWeight: '700', color: '#0a0a1a', marginBottom: 8, textAlign: 'center' },
   emptySub: { fontSize: 14, color: '#888', textAlign: 'center', lineHeight: 21 },
   list: { padding: 20, paddingBottom: 40 },
@@ -192,7 +202,6 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  cardIcon: { fontSize: 20 },
   cardBody: { flex: 1 },
   cardTitleRow: {
     flexDirection: 'row',

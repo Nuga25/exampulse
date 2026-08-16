@@ -48,7 +48,7 @@ const sendReminderNotifications = async (hoursBeforeExam, label) => {
     for (const exam of exams) {
       await sendNotificationToStudents(
         exam.courseCode,
-        `⏰ Exam Reminder — ${label}`,
+        `Exam Reminder — ${label}`,
         `${exam.courseCode} — ${exam.courseTitle} starts in ${label} at ${exam.startTime}, ${exam.venue}`,
         { examId: exam.id, ...exam }
       );
@@ -176,7 +176,7 @@ db.ref('exams').on('child_added', async (snapshot) => {
 
   await sendNotificationToStudents(
     exam.courseCode,
-    '📅 New Exam Scheduled',
+    'New Exam Scheduled',
     `${exam.courseCode} — ${exam.courseTitle} on ${exam.date} at ${exam.startTime}, ${exam.venue}`,
     { examId, ...exam }
   );
@@ -194,7 +194,7 @@ db.ref('exams').on('child_changed', async (snapshot) => {
 
   await sendNotificationToStudents(
     exam.courseCode,
-    '✏️ Exam Updated',
+    'Exam Updated',
     `${exam.courseCode} — ${exam.courseTitle} has been updated. Check your timetable.`,
     { examId, ...exam }
   );
@@ -211,7 +211,7 @@ db.ref('exams').on('child_removed', async (snapshot) => {
 
   await sendNotificationToStudents(
     exam.courseCode,
-    '🗑️ Exam Cancelled',
+    'Exam Cancelled',
     `${exam.courseCode} — ${exam.courseTitle} has been cancelled.`,
     { examId: snapshot.key, ...exam }
   );

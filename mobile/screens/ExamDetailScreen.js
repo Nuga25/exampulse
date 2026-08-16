@@ -3,6 +3,7 @@ import {
   View, Text, StyleSheet, ScrollView,
   TouchableOpacity, StatusBar
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const formatDate = (dateStr) => {
@@ -101,13 +102,13 @@ export default function ExamDetailScreen({ route, navigation }) {
           {/* Countdown card */}
           {countdown ? (
             <View style={s.countdownCard}>
-              <Text style={s.countdownIcon}>⏰</Text>
+              <Ionicons name="time-outline" size={22} color="#fff" style={{ marginBottom: 6 }} />
               <Text style={s.countdownLabel}>TIME LEFT</Text>
               <Text style={s.countdownValue}>{countdown}</Text>
             </View>
           ) : (
             <View style={[s.countdownCard, { backgroundColor: '#f0f0f5' }]}>
-              <Text style={s.countdownIcon}>✅</Text>
+              <Ionicons name="checkmark-circle-outline" size={22} color="#999" style={{ marginBottom: 6 }} />
               <Text style={[s.countdownLabel, { color: '#999' }]}>STATUS</Text>
               <Text style={[s.countdownValue, { color: '#999', fontSize: 14 }]}>Completed</Text>
             </View>
@@ -118,7 +119,7 @@ export default function ExamDetailScreen({ route, navigation }) {
         <View style={s.card}>
           <View style={s.cardHeader}>
             <View style={s.cardIconBox}>
-              <Text style={s.cardIconText}>📅</Text>
+              <Ionicons name="calendar-outline" size={18} color="#0a0a1a" />
             </View>
             <Text style={s.cardTitle}>Schedule</Text>
           </View>
@@ -140,7 +141,7 @@ export default function ExamDetailScreen({ route, navigation }) {
         <View style={s.card}>
           <View style={s.cardHeader}>
             <View style={s.cardIconBox}>
-              <Text style={s.cardIconText}>📍</Text>
+              <Ionicons name="location-outline" size={18} color="#0a0a1a" />
             </View>
             <Text style={s.cardTitle}>Venue</Text>
           </View>
@@ -155,7 +156,7 @@ export default function ExamDetailScreen({ route, navigation }) {
           <View style={s.card}>
             <View style={s.cardHeader}>
               <View style={s.cardIconBox}>
-                <Text style={s.cardIconText}>📋</Text>
+                <Ionicons name="clipboard-outline" size={18} color="#0a0a1a" />
               </View>
               <Text style={s.cardTitle}>Instructions</Text>
             </View>
@@ -168,7 +169,7 @@ export default function ExamDetailScreen({ route, navigation }) {
         <View style={s.card}>
           <View style={s.cardHeader}>
             <View style={s.cardIconBox}>
-              <Text style={s.cardIconText}>🎒</Text>
+              <Ionicons name="bag-outline" size={18} color="#0a0a1a" />
             </View>
             <Text style={s.cardTitle}>Required Materials</Text>
           </View>

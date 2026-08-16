@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   Alert, ActivityIndicator, StatusBar,
@@ -175,7 +176,11 @@ export default function LoginScreen({ navigation }) {
                   onBlur={() => setPasswordFocused(false)}
                 />
                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={s.eyeBtn}>
-                  <Text style={s.eyeText}>{showPassword ? '🙈' : '👁'}</Text>
+                  <Ionicons
+                    name={showPassword ? 'eye-off' : 'eye'}
+                    size={20}
+                    color="#888"
+                  />
                 </TouchableOpacity>
               </View>
             </View>
@@ -325,9 +330,6 @@ const s = StyleSheet.create({
   },
   eyeBtn: {
     padding: 4,
-  },
-  eyeText: {
-    fontSize: 16,
   },
   signInBtn: {
     height: 54,
